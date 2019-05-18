@@ -1,0 +1,26 @@
+inProgress/*
+sabnzbd/*
+bazarr/*
+makemkv/*
+rutorrent/*
+jdownloader2/*
+qbitorrent/*
+transmission/*
+*.bak
+*.fuse_hidden
+*.partial~
+*.nfo
+*.jpeg
+*.jpg
+*.txt
+*.html
+*.rar
+*.r0
+*.r1
+.unionfs/*
+_HIDDEN/*
+*.zip
+*.png
+this is a test line
+HTML/**
+jdownloader2/**
