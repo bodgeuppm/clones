@@ -32,8 +32,8 @@ echo "" >> /var/plexguide/logs/pgblitz.log
 echo "----------------------------" >> /var/plexguide/logs/pgblitz.log
 echo "PG Blitz Log - First Startup" >> /var/plexguide/logs/pgblitz.log
 
-chown -R 1000:1000 "$dlpath/cache"
-chmod -R 775 "$dlpath/cache"
+chown -R 1000:1000 "$dlpath/downloads"
+chmod -R 775 "$dlpath/downloads"
 chown -R 1000:1000 "$dlpath/move"
 chmod -R 775 "$dlpath/move"
 
@@ -58,7 +58,7 @@ let "cyclecount++"
   echo "" >> /var/plexguide/logs/pgblitz.log
   echo "Utilizing: $keytransfer" >> /var/plexguide/logs/pgblitz.log
   
-  rclone moveto "/mnt/cache/" "$dlpath/move/" \
+  rclone moveto "$dlpath/downloads/" "$dlpath/move/" \
   --config /opt/appdata/plexguide/rclone.conf \
   --log-file=/var/plexguide/logs/pgblitz.log \
   --log-level INFO --stats 5s --stats-file-name-length 0 \
@@ -94,7 +94,7 @@ let "cyclecount++"
   sleep 5
 
 # Remove empty directories
-find "/mnt/cache/" -mindepth 2 -type d -empty -exec rm -rf {} \;
+find "$dlpath/downloads" -mindepth 2 -type d -empty -exec rm -rf {} \;
 find "$dlpath/move/" -type d -empty -exec rm -rf {} \;
 find "$dlpath/move/" -mindepth 2 -type f -cmin +5 -size +1M -exec rm -rf {} \;
 
