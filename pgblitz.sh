@@ -62,7 +62,7 @@ let "cyclecount++"
   --config /opt/appdata/plexguide/rclone.conf \
   --log-file=/var/plexguide/logs/pgblitz.log \
   --log-level INFO --stats 5s --stats-file-name-length 0 \
-  --min-age 3d \
+  --min-age 2m \
   --transfers=4 \
   --checkers=8 \
   --fast-list \
