@@ -21,6 +21,5 @@ transmission/*
 _HIDDEN/*
 *.zip
 *.png
-this is a test line
 HTML/**
 jdownloader2/**
