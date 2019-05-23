@@ -1,0 +1,78 @@
+#!/bin/bash
+#
+# Title:      PGBlitz (fauria/vsftpd)
+# Author(s):  MrDoob
+# URL:        https://pgblitz.com - http://github.pgblitz.com
+# GNU:        General Public License v3.0
+################################################################################
+---
+- hosts: localhost
+  gather_facts: false
+  tasks:
+    # FACTS #######################################################################
+    - name: 'Set Known Facts'
+      set_fact:
+        pgrole: 'vsftpd'
+        intport: '20'
+        extport: '20'
+        intport2: '21'
+        extport2: '55'
+        intport3: '21100-21110'
+        extport3: '21100-21110'
+        image: 'fauria/vsftpd:latest'
+
+    # CORE (MANDATORY) ############################################################
+    - name: 'Including cron job'
+      include_tasks: '/opt/coreapps/apps/_core.yml'
+
+    # LABELS ######################################################################
+    - name: 'Adding Traefik'
+      set_fact:
+        pg_labels:
+          traefik.enable: 'true'
+          traefik.port: '{{intport}}'
+          traefik.frontend.rule: 'Host:{{pgrole}}.{{domain.stdout}},'
+
+    - name: 'Setting PG Volumes'
+      set_fact:
+        pg_volumes:
+          - '/opt/appdata/{{pgrole}}/vsftpd/:/etc/vsftpd/:rw'
+          - '/mnt:/home/vsftpd:ro'
+          - '/etc/localtime:/etc/localtime:ro'
+
+    - name: 'Setting PG ENV'
+      set_fact:
+        pg_env:
+          PUID: '1000'
+          PGID: '1000'
+          TZ: '${TZ}'
+          XFERLOG_STD_FORMAT: 'YES'
+          PASV_ADDRESS_ENABLE: 'YES'         
+          PASV_ADDRESS: '127.0.0.1'
+          PASV_MIN_PORT: '21100'
+          PASV_MAX_PORT: '21110'
+          PASV_ADDRESS_RESOLVE: '{{pgrole}}.{{domain.stdout}}'
+          PASV_ADDRESS: '{{pgrole}}.{{domain.stdout}}'
+          LOG_STDOUT: '/opt/appdata/{{pgrole}}/vsftpd/log/'
+          FILE_OPEN_MODE: '0650'
+          LOCAL_UMASK: '002'
+
+    # MAIN DEPLOYMENT #############################################################
+    - name: 'Deploying {{pgrole}}'
+      docker_container:
+        name: '{{pgrole}}'
+        image: '{{image}}'
+        pull: yes
+        published_ports:
+          - '{{ports.stdout}}{{extport}}:{{intport}}'
+          - '{{extport2}}:{{intport2}}'
+          - '{{extport3}}:{{intport3}}'
+        volumes: '{{pg_volumes}}'
+        env: '{{pg_env}}'
+        restart_policy: always
+        networks:
+          - name: plexguide
+            aliases:
+              - '{{pgrole}}'
+        state: started
+        labels: '{{pg_labels}}'
