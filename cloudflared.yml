@@ -13,7 +13,9 @@
     - name: 'Set Known Facts'
       set_fact:
         pgrole: 'cloudflared'
-        image: 'visibilityspots/cloudflared:latest'
+        intport: '53'
+        extport: '53'        
+        image: 'visibilityspots/cloudflared:amd64'
 
     # CORE (MANDATORY) ############################################################
     - name: 'Including cron job'
@@ -24,7 +26,7 @@
     - name: 'Setting PG Volumes'
       set_fact:
         pg_volumes:
-          - '/opt/appdata/{{pgrole}}/:/cmd/cloudflared:rw'
+          - '/opt/appdata/{{pgrole}}/://go/src/github.com/cloudflare/cloudflared/cmd/cloudflared:rw'
           - '/etc/localtime:/etc/localtime:ro'
 
     - name: 'Setting PG ENV'
@@ -35,8 +37,6 @@
           TZ: '${TZ}'
           DNS1: '1.1.1.1'
           DNS2: '1.0.0.1'
-          DNS3: '2606:4700:4700::1111'
-          DNS4: '2606:4700:4700::1001'
 
     # MAIN DEPLOYMENT #############################################################
     - name: 'Deploying {{pgrole}}'
@@ -45,12 +45,12 @@
         image: '{{image}}'
         pull: yes
         published_ports:
-          - '{{extport}}:{{intport}}'
+          - '{{ports.stdout}}{{extport}}:{{intport}}'
         volumes: '{{pg_volumes}}'
         env: '{{pg_env}}'
         restart_policy: always
         networks:
-          - name: host
+          - name: plexguide
             aliases:
               - '{{pgrole}}'
         state: started
